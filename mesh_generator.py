@@ -7,12 +7,12 @@ from helper import *
 dx = 5
 dy = 5
 
-Lx = 50
-Ly = 50
+Lx = 150
+Ly = 150
 
-degrade = 0 # reduce by 90%
-index_x = 9
-index_y = 9
+degrade = 0 # reduce by {degrade}%
+index_x = 29
+index_y = 29
 
 ##############################
 
@@ -48,6 +48,11 @@ for y in range(mesh.shape[0]):
         cell = mesh[y][x]
         cell.Gx = x_val
         cell.Gy = y_val
+
+        if y == 0: cell.edge_node_pos.append(3)
+        if x == 0: cell.edge_node_pos.append(0)
+        if x == (Ly/dy) - 1 : cell.edge_node_pos.append(2)
+        if y == (Lx/dx) - 1 : cell.edge_node_pos.append(1)
 
         x_val += cell.Cell_size_x
     x_val = 0
@@ -130,6 +135,32 @@ for y in range(mesh.shape[0]):
                 0.1, color='red', fill=False
             )
         ax.add_patch(circle)
+
+        edge_node_pos = cell.edge_node_pos
+        if len(edge_node_pos) != 0:
+            if 0 in edge_node_pos:
+                ax.add_patch(plt.Circle(
+                    (cell.Gx, cell.Gy + cell.Cell_size_y / 2),
+                    0.15, color='red', fill=False)
+                )
+
+            if 1 in edge_node_pos:
+                ax.add_patch(plt.Circle(
+                    (cell.Gx + cell.Cell_size_x / 2, cell.Gy + cell.Cell_size_y),
+                    0.15, color='red', fill=False)
+                )
+
+            if 2 in edge_node_pos:
+                ax.add_patch(plt.Circle(
+                    (cell.Gx + cell.Cell_size_x, cell.Gy + cell.Cell_size_y / 2),
+                    0.15, color='red', fill=False)
+                )
+
+            if 3 in edge_node_pos:
+                ax.add_patch(plt.Circle(
+                    (cell.Gx + cell.Cell_size_x / 2, cell.Gy),
+                    0.15, color='red', fill=False)
+                )
 
         rect = plt.Rectangle((cell.Gx, cell.Gy), cell.Cell_size_x, cell.Cell_size_y, linewidth=1, edgecolor=cell.edge_color, facecolor='none')
         ax.add_patch(rect)

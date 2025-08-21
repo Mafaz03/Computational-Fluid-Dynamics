@@ -7,12 +7,12 @@ from helper import *
 dx = 5
 dy = 5
 
-Lx = 200
-Ly = 200
+Lx = 50
+Ly = 50
 
-degrade = 110 # reduce by 90%
-index_x = 39
-index_y = 39
+degrade = 0 # reduce by 90%
+index_x = 9
+index_y = 9
 
 ##############################
 
@@ -31,6 +31,9 @@ class node:
         self.edge_color = "blue"
 
         self.edge_node_pos = []
+        #    1
+        # 0|   | 2
+        #    3
 
 # Initializing empty mesh
 mesh = np.array([[node() for x in range(int(Lx/dx))] for y in range(int(Ly/dy))])
@@ -50,36 +53,34 @@ for y in range(mesh.shape[0]):
     x_val = 0
     y_val += cell.Cell_size_y
 
-# def strech_mesh(mesh: np.array, percentage, strech_function, index_x, index_y):
-#     for y in range(mesh.shape[0]):
-#         # Extract current row cell sizes
-#         x_array_size = [mesh[y][x].Cell_size_x for x in range(mesh.shape[1])]
+def strech_mesh(mesh: np.array, percentage, strech_function, index_x, index_y):
+    if percentage == 0: # Edge case
+        return mesh
+    # Stretch in x
+    for y in range(mesh.shape[0]):
+        x_array_size = [mesh[y][x].Cell_size_x for x in range(mesh.shape[1])]
+        stretched_array_size = strech_function(x_array_size, index_x, percentage)
+        for x in range(mesh.shape[1]):
+            mesh[y][x].Cell_size_x = stretched_array_size[x]
 
-#         # Stretch chosen index
-#         stretched_array_size = strech_function(x_array_size, index_x, percentage)
+    # Stretch in y
+    for x in range(mesh.shape[1]):
+        y_array_size = [mesh[y][x].Cell_size_y for y in range(mesh.shape[0])]
+        stretched_array_size = strech_function(y_array_size, index_y, percentage)
+        for y in range(mesh.shape[0]):
+            mesh[y][x].Cell_size_y = stretched_array_size[y]
 
-#         # Assign back the new sizes and recompute bottom-left
-#         gx_temp = 0
-#         for x in range(mesh.shape[1]):
-#             mesh[y][x].Cell_size_x = stretched_array_size[x]
-#             mesh[y][x].Gx = gx_temp   # bottom-left of this cell
-#             gx_temp += stretched_array_size[x]
+    # Recompute coordinates AFTER both
+    y_val = 0
+    for y in range(mesh.shape[0]):
+        x_val = 0
+        for x in range(mesh.shape[1]):
+            mesh[y][x].Gx = x_val
+            mesh[y][x].Gy = y_val
+            x_val += mesh[y][x].Cell_size_x
+        y_val += mesh[y][0].Cell_size_y
 
-#     for x in range(mesh.shape[1]):
-#         # Extract current column cell sizes
-#         y_array_size = [mesh[y][x].Cell_size_y for y in range(mesh.shape[0])]
-
-#         # Stretch chosen index 
-#         stretched_array_size = strech_function(y_array_size, index_y, percentage)
-
-#         # Assign back and recompute bottom-left Gy
-#         gy_temp = 0
-#         for y in range(mesh.shape[0]):
-#             mesh[y][x].Cell_size_y = stretched_array_size[y]
-#             mesh[y][x].Gy = gy_temp
-#             gy_temp += stretched_array_size[y]
-
-#     return mesh  
+    return mesh 
 
 def strech(axis, index, degrade):
     axis = np.array(axis, dtype=float)

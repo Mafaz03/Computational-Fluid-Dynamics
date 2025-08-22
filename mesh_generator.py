@@ -7,12 +7,14 @@ from helper import *
 dx = 5
 dy = 5
 
-Lx = 150
-Ly = 150
+Lx = 100
+Ly = 100
 
-degrade = 0 # reduce by {degrade}%
-index_x = 29
-index_y = 29
+x_percentage = 90 # reduce by {x_percentage}%
+y_percentage = 90 # reduce by {y_percentage}%
+
+index_x = 19
+index_y = 19
 
 ##############################
 
@@ -58,22 +60,25 @@ for y in range(mesh.shape[0]):
     x_val = 0
     y_val += cell.Cell_size_y
 
-def strech_mesh(mesh: np.array, percentage, strech_function, index_x, index_y):
-    if percentage == 0: # Edge case
+def strech_mesh(mesh: np.array, x_percentage, y_percentage, strech_function, index_x, index_y):
+    if x_percentage == 0 and y_percentage == 0: # Edge case
         return mesh
+    
     # Stretch in x
-    for y in range(mesh.shape[0]):
-        x_array_size = [mesh[y][x].Cell_size_x for x in range(mesh.shape[1])]
-        stretched_array_size = strech_function(x_array_size, index_x, percentage)
-        for x in range(mesh.shape[1]):
-            mesh[y][x].Cell_size_x = stretched_array_size[x]
+    if x_percentage != 0:
+        for y in range(mesh.shape[0]):
+            x_array_size = [mesh[y][x].Cell_size_x for x in range(mesh.shape[1])]
+            stretched_array_size = strech_function(x_array_size, index_x, x_percentage)
+            for x in range(mesh.shape[1]):
+                mesh[y][x].Cell_size_x = stretched_array_size[x]
 
     # Stretch in y
-    for x in range(mesh.shape[1]):
-        y_array_size = [mesh[y][x].Cell_size_y for y in range(mesh.shape[0])]
-        stretched_array_size = strech_function(y_array_size, index_y, percentage)
-        for y in range(mesh.shape[0]):
-            mesh[y][x].Cell_size_y = stretched_array_size[y]
+    if y_percentage != 0:
+        for x in range(mesh.shape[1]):
+            y_array_size = [mesh[y][x].Cell_size_y for y in range(mesh.shape[0])]
+            stretched_array_size = strech_function(y_array_size, index_y, y_percentage)
+            for y in range(mesh.shape[0]):
+                mesh[y][x].Cell_size_y = stretched_array_size[y]
 
     # Recompute coordinates AFTER both
     y_val = 0
@@ -114,7 +119,7 @@ def strech(axis, index, degrade):
 
     return new_axis.tolist()
 
-mesh = strech_mesh(mesh, degrade, strech_function = strech, index_x=index_x, index_y=index_y)   
+mesh = strech_mesh(mesh, x_percentage, y_percentage, strech_function = strech, index_x=index_x, index_y=index_y)   
 
 # Plotting
 fig, ax = plt.subplots(figsize=(10, 10))

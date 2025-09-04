@@ -10,11 +10,12 @@ dy = 5
 Lx = 100
 Ly = 100
 
-x_percentage = 90 # reduce by {x_percentage}%
-y_percentage = 90 # reduce by {y_percentage}%
+# For equidistant change it to 0, 0
+x_percentage = 5 # reduce by {x_percentage}%
+y_percentage = 5 # reduce by {y_percentage}%
 
-index_x = 19
-index_y = 19
+index_x = -1
+index_y = 0
 
 ##############################
 
@@ -92,34 +93,8 @@ def strech_mesh(mesh: np.array, x_percentage, y_percentage, strech_function, ind
 
     return mesh 
 
-def strech(axis, index, degrade):
-    axis = np.array(axis, dtype=float)
-    total = axis.sum()
 
-    # Step 1: shrink chosen index
-    new_value = axis[index] * ((100 - degrade) / 100.0)
-
-    # Step 2: leftover
-    leftover = total - new_value
-
-    # Step 3: distribute leftover based on distance from index
-    n = len(axis)
-    distances = np.array([abs(i - index) for i in range(n)], dtype=float)
-    weights = (distances)    # farther gets more
-    weights[index] = 0
-
-    factor = leftover / weights.sum()
-
-    new_axis = np.zeros_like(axis)
-    for i in range(n):
-        if i == index:
-            new_axis[i] = new_value
-        else:
-            new_axis[i] = factor * weights[i]
-
-    return new_axis.tolist()
-
-mesh = strech_mesh(mesh, x_percentage, y_percentage, strech_function = strech, index_x=index_x, index_y=index_y)   
+mesh = strech_mesh(mesh, x_percentage, y_percentage, strech_function = degrade_percentage, index_x=index_x, index_y=index_y)   
 
 # Plotting
 fig, ax = plt.subplots(figsize=(10, 10))
@@ -141,32 +116,32 @@ for y in range(mesh.shape[0]):
             )
         ax.add_patch(circle)
 
+        rect = plt.Rectangle((cell.Gx, cell.Gy), cell.Cell_size_x, cell.Cell_size_y, linewidth=1, edgecolor=cell.edge_color, facecolor='none')
+        ax.add_patch(rect)
+
         edge_node_pos = cell.edge_node_pos
         if len(edge_node_pos) != 0:
             if 0 in edge_node_pos:
                 ax.add_patch(plt.Circle(
                     (cell.Gx, cell.Gy + cell.Cell_size_y / 2),
-                    0.15, color='red', fill=False)
+                    0.3, color='red', fill=False)
                 )
 
             if 1 in edge_node_pos:
                 ax.add_patch(plt.Circle(
                     (cell.Gx + cell.Cell_size_x / 2, cell.Gy + cell.Cell_size_y),
-                    0.15, color='red', fill=False)
+                    0.3, color='red', fill=False)
                 )
 
             if 2 in edge_node_pos:
                 ax.add_patch(plt.Circle(
                     (cell.Gx + cell.Cell_size_x, cell.Gy + cell.Cell_size_y / 2),
-                    0.15, color='red', fill=False)
+                    0.3, color='red', fill=False)
                 )
 
             if 3 in edge_node_pos:
                 ax.add_patch(plt.Circle(
                     (cell.Gx + cell.Cell_size_x / 2, cell.Gy),
-                    0.15, color='red', fill=False)
+                    0.3, color='red', fill=False)
                 )
-
-        rect = plt.Rectangle((cell.Gx, cell.Gy), cell.Cell_size_x, cell.Cell_size_y, linewidth=1, edgecolor=cell.edge_color, facecolor='none')
-        ax.add_patch(rect)
 plt.show()

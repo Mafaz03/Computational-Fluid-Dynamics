@@ -1,37 +1,47 @@
 import numpy as np
 
-def stretch_one_point_gradual(arr, index, percent):
-    """
-    Stretch or shrink one point by `percent`, and reduce others progressively.
-    Total sum remains the same.
-    """
-    arr = np.array(arr, dtype=float)
-    total = arr.sum()
-    n = len(arr)
 
-    # Compute new value for chosen index
-    new_value = arr[index] * (1 + percent / 100.0)
+def strech(axis, index, degrade):
+    axis = np.array(axis, dtype=float)
+    total = axis.sum()
 
-    # Remaining total for other values
+    new_value = axis[index] * ((100 - degrade) / 100.0)
+
     leftover = total - new_value
-
-    # Progressive weights for others
-    weights = np.array([i+1 for i in range(n)], dtype=float)
+    n = len(axis)
+    distances = np.array([abs(i - index) for i in range(n)], dtype=float)
+    weights = (distances)    # farther gets more
     weights[index] = 0
 
-    # Normalize weights so others sum to leftover
     factor = leftover / weights.sum()
+
+    new_axis = np.zeros_like(axis)
     for i in range(n):
-        if i != index:
-            arr[i] = factor * weights[i]
-    arr[index] = new_value
+        if i == index:
+            new_axis[i] = new_value
+        else:
+            new_axis[i] = factor * weights[i]
 
+    return new_axis.tolist()
+
+
+def degrade_percentage(arr, index, degrade):
+    assert index in (0, -1)
+
+    total_sum = sum(arr)
+    factor = (100 - degrade) / 100.0
+    arr = np.array(arr, dtype=float)
+
+    # Apply progressive decay
+    if index == -1:
+        for idx in range(1, len(arr)):
+            arr[idx] = arr[idx-1] * factor
+    else:
+        for idx in range(len(arr)-2, -1, -1):
+            arr[idx] = arr[idx+1] * factor
+
+    # Scale to preserve total sum
+    new_total_sum = arr.sum()
+    arr *= total_sum / new_total_sum
+    # print(arr)
     return arr
-
-# Testing
-if __name__ == "__main__":
-
-    x_axis = [5, 5, 5, 5, 5, 5]
-    result = stretch_one_point_gradual(x_axis, index=0, percent=-90)  # Stretch 0th element by {percent}%
-    print(result)
-    print("Sum:", sum(result))

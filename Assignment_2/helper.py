@@ -1,6 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def linear_to_flipped_coords(index, num_rows):
+    col = index // num_rows
+    row_from_bottom = index % num_rows
+    row = num_rows - 1 - row_from_bottom
+    return (row, col)
+
+def find_neighbors(nodes, row, col, num_nodes_x, num_nodes_y):
+    """!!!!!!!!!!!! Remeber that it returns node number not index !!!!!!!!!!!!"""
+    north = nodes[row-1][col] if row > 0 else None
+    south = nodes[row+1][col] if row < num_nodes_y - 1 else None
+    west = nodes[row][col-1] if col > 0 else None
+    east = nodes[row][col+1] if col < num_nodes_x - 1 else None
+    return {'north': north, 'east': east, 'south': south, 'west': west}
+
 def strech(axis, index, degrade):
     axis = np.array(axis, dtype=float)
     total = axis.sum()

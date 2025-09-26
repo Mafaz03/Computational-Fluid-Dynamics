@@ -60,51 +60,59 @@ def degrade_percentage(arr, index, degrade):
     # print(arr)
     return arr
 
-
 def plot_mesh(mesh, plot_size_y, plot_size_x):
     # Plotting
     fig, ax = plt.subplots(figsize=(10, 10))
+    # scaling factor so tiny cells still render visibly
+    scale = max(plot_size_x, plot_size_y) / 100.0
 
     canvas = np.ones((int(plot_size_y), int(plot_size_x)))
     ax.imshow(canvas, origin='lower', cmap='gray',
-            extent=[0, plot_size_x, 0, plot_size_y])
+              extent=[0, plot_size_x, 0, plot_size_y])
 
     for y in range(mesh.shape[0]):
         for x in range(mesh.shape[1]):
             cell = mesh[y][x]
 
+            # cell center marker
             circle = plt.Circle(
-                    (cell.Gx + cell.Cell_size_x / 2, cell.Gy + cell.Cell_size_y / 2),
-                    0.1, color='red', fill=False
-                )
+                (cell.Gx + cell.Cell_size_x / 2, cell.Gy + cell.Cell_size_y / 2),
+                0.1 * scale, color='red', fill=False
+            )
             ax.add_patch(circle)
 
-            rect = plt.Rectangle((cell.Gx, cell.Gy), cell.Cell_size_x, cell.Cell_size_y, linewidth=1, edgecolor=cell.edge_color, facecolor='none')
+            # cell rectangle
+            rect = plt.Rectangle(
+                (cell.Gx, cell.Gy),
+                cell.Cell_size_x, cell.Cell_size_y,
+                linewidth=1 * scale, edgecolor=cell.edge_color, facecolor='none'
+            )
             ax.add_patch(rect)
 
+            # edge node markers
             edge_node_pos = cell.edge_node_pos
             if len(edge_node_pos) != 0:
                 if 0 in edge_node_pos:
                     ax.add_patch(plt.Circle(
                         (cell.Gx, cell.Gy + cell.Cell_size_y / 2),
-                        0.3, color='red', fill=False)
-                    )
+                        0.3 * scale, color='red', fill=False
+                    ))
 
                 if 1 in edge_node_pos:
                     ax.add_patch(plt.Circle(
                         (cell.Gx + cell.Cell_size_x / 2, cell.Gy + cell.Cell_size_y),
-                        0.3, color='red', fill=False)
-                    )
+                        0.3 * scale, color='red', fill=False
+                    ))
 
                 if 2 in edge_node_pos:
                     ax.add_patch(plt.Circle(
                         (cell.Gx + cell.Cell_size_x, cell.Gy + cell.Cell_size_y / 2),
-                        0.3, color='red', fill=False)
-                    )
+                        0.3 * scale, color='red', fill=False
+                    ))
 
                 if 3 in edge_node_pos:
                     ax.add_patch(plt.Circle(
                         (cell.Gx + cell.Cell_size_x / 2, cell.Gy),
-                        0.3, color='red', fill=False)
-                    )
+                        0.3 * scale, color='red', fill=False
+                    ))
     plt.show()

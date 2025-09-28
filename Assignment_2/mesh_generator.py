@@ -11,11 +11,11 @@ Lx = 100
 Ly = 100
 
 # For equidistant change it to 0, 0
-x_percentage = 5 # reduce by {x_percentage}%
+x_percentage = 10 # reduce by {x_percentage}%
 y_percentage = 5 # reduce by {y_percentage}%
 
-index_x = -1
-index_y = 0
+index_x = 0
+index_y = -1
 
 ##############################
 

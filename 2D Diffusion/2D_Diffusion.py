@@ -223,10 +223,12 @@ def Diffusion_2D(dx, dy, Lx,  Ly, x_percentage, y_percentage, index_x, index_y, 
 
     coef_matrix = np.zeros((num_nodes_y*num_nodes_x, num_nodes_y*num_nodes_x))
     Su_vector = np.zeros_like(coef_matrix[:,0])
+    coef_matrix.shape
 
-    T_old = np.ones(num_nodes_x * num_nodes_y)  # initial guess, can be nonzero if known
-    tolerance = 80
-    max_iterations = 1
+    T_old = np.ones(num_nodes_x * num_nodes_y)  # initial guess
+
+    tolerance = 0.1
+    max_iterations = 500
 
     for iteration in range(max_iterations):
         print(iteration)
@@ -248,7 +250,7 @@ def Diffusion_2D(dx, dy, Lx,  Ly, x_percentage, y_percentage, index_x, index_y, 
 
             # -----------------------------
             k_cell = 16 * ((cell.Gy + (cell.Cell_size_y/2)) / Ly + 1)
-            Sp = (1.5 * cell.Cell_size_x * cell.Cell_size_y) / T_old[node_idx]
+            Sp = (1.5 * cell.Cell_size_x * cell.Cell_size_y) / T_old[node_idx] if T_old[node_idx] > 0.01 else 1
             Su = 0
             # Su += Sp * T_old[node_idx]
             # -----------------------------
@@ -371,7 +373,7 @@ def Diffusion_2D(dx, dy, Lx,  Ly, x_percentage, y_percentage, index_x, index_y, 
         X, loops_taken, relative_error_list = Gauss_Sadel(coef_matrix, 
                                                         Su_vector, 
                                                         np.zeros_like(Su_vector), # Initial Guess
-                                                        tolerance=1e-4, max_loops=200)
+                                                        tolerance=1e-4, max_loops=50)
 
         max_diff = np.max(np.abs(X - T_old))
         print(max_diff)
@@ -379,7 +381,6 @@ def Diffusion_2D(dx, dy, Lx,  Ly, x_percentage, y_percentage, index_x, index_y, 
             print(f"Converged in {iteration+1} outer iterations.")
             break
         T_old = X.copy()
-
     # Reshape for 5×5 grid
     X_grid = X.reshape(num_nodes_x, num_nodes_y).transpose()
 
@@ -398,34 +399,22 @@ def Diffusion_2D(dx, dy, Lx,  Ly, x_percentage, y_percentage, index_x, index_y, 
     ax.set_aspect(dx/dy)
                   
     return fig
-    # fig, ax = plt.subplots(figsize=(8,8))
-    # plt.figure(figsize=(8,8))
-    # contour = plt.contourf(X_coords, Y_coords, X_grid, levels=20, cmap='inferno')
-    # plt.colorbar(label='Temperature')
-    # plt.xlabel('x')
-    # plt.ylabel('y')
-    # plt.title('Temperature Distribution')
 
-    # plt.gca().set_aspect(dx/dy) 
-    # plt.show()
-
-# Diffusion_2D(dx, dy, Lx,  Ly, x_percentage, y_percentage, index_x, index_y, q_E, T_N, T_S)
-
-# radio Interface
+# gradio Interface
 demo = gr.Interface(
     fn=Diffusion_2D,
     inputs=[
-        gr.Textbox(label="dx"),
-        gr.Textbox(label="dy"),
-        gr.Textbox(label="Lx"),
-        gr.Textbox(label="Ly"),
-        gr.Textbox(label="x_percentage"),
-        gr.Textbox(label="y_percentage"),
-        gr.Textbox(label="index_x"),
-        gr.Textbox(label="index_y"),
-        gr.Textbox(label="q_E"),
-        gr.Textbox(label="T_N"),
-        gr.Textbox(label="T_S"),
+        gr.Textbox(label="dx", value="0.05"),
+        gr.Textbox(label="dy", value="0.025"),
+        gr.Textbox(label="Lx", value="1"),
+        gr.Textbox(label="Ly", value="0.5"),
+        gr.Textbox(label="x_percentage", value = "0"),
+        gr.Textbox(label="y_percentage", value = "0"),
+        gr.Textbox(label="index_x" , value = "0"),
+        gr.Textbox(label="index_y", value = "0"),
+        gr.Textbox(label="q_E", value = "5000"),
+        gr.Textbox(label="T_N", value = "10"),
+        gr.Textbox(label="T_S", value = "15"),
     ],
     outputs=gr.Plot(label="Temperature Contour"),
 )
